@@ -1,0 +1,37 @@
+After reaching the glass panel that displays an output after applying an n round DES for any string command written, it said every 2 letter pairs is mapped to a byte and the corresponding string of digits is used for encryption and decryption. Since a 4 round DES would have been too easy, we started with an assumption of it being a 6 round DES. First we observed that the terminal ignored the odd letter we typed, for the encryption, for example it gave us no output when 1 letter was typed, gave a 16 letter output when 2 letter input was given and the same 16 letter output was given when a 3 letter string with the first 2 letters same as before was given as an input(for example, ff and ffa gave the same output). Then we passed some 2 letter inputs and observed that the output had the letters only from the range f to u. Then we thought of the mapping of these letters to be 0 to 15 in binary in ascending order. 
+	We used the differential characteristic of 4-round DES (as told by sir in class). The characteristic is (405c0000, 04000000, 0.000381, 00540000, 04000000). This meant that We used two cpp programs rand.cpp and random_input.cpp where rand.cpp is for generating 1 lakh random strings and stored in random.txt and random_input.cpp is used to get input pairs whose xor is equal to ‘0000902010005000’ which we get from inverse initial permutation of ‘405c0000 04000000’ and stored in input_random.txt. Then we ran the shell script input.sh to get the output in output.txt. The waste outputs were removed by inputsahikarnahai.cpp and then stored in output1.txt.
+	Now we run the file alphabettobinary.cpp which takes output_clean.txt as input and gives outputs in output1.txt after converting alphabets into 4 bit binary code. Then differential.cpp is run in which output1.txt is taken and three different outputs are printed in alphaxor.txt, betaxor.txt and reversefinalperm.txt. In this program, the block is first reverse final permuted and stored in reversefinalperm.txt. Then the whole odd and even blocks(they both are pairs) are xor with each other. Alpha is value just after the xor with key 6,beta is value just after the sbox in 6th round and gamma is just before the taking xor with key 6 and after expanding R5 which is also equal to L6.The left hand side bit is expanded and that is equal to gamma1 xor gamma2 which is also equal to alpha1 xor alpha2 which is stored in alphaxor.txt. The right hand is xor with xored L5(equal to R4 which is probabilistically equal to ‘04000000’ and then inverse permuted to give beta1 xor beta2 stored in betaxor.txt.
+
+The gamma.cpp computes the gamma1 values after expanding the left hand side of the reverse final permuted block from reversefinalperm.txt and stores it in gamma.txt.
+
+Then we used MySbox.cpp program to get the values of alpha1 and alpha2 corresponding to alpha1 xor alpha2 and whose S(alpha1) and S(alpha2) is also equal to beta1 xor beta2 .For each permuted 6 bits of alpha1 we calculated value of alpha2 by taking xor of alpha1 and (alpha1 xor alpha2). After this we compare the value of S[alpha1] xor S[alpha2] with beta xor if these alpha1 and alpha2 satisfy these condition than these are the possible values of alpha1 and alpha2.
+
+After this, We calculate key 6 by taking the xor of the candidate alpha1 with corresponding gamma1 and kept a counter for it. The key will repeat itself more frequently as compare to others. These frequencies are stored in key.txt file.
+Key Block Value 45  59  - - 8  56  15 55
+  (101101)  (111011)      (001000)  (111000)  (001111)  (110111)
+Maximum    Frequency  8271  8725  6477 6476 9344  8618  8408  8638
+
+2nd Highest. Frequency  6770  6658  6410 6472 6831  6679  6657  6991
+Now, we get 6 blocks values out of 8 blocks but we could not get the key values from S-boxes S3 and S4. So now we have knowledge of 36 bits out of 56 bits.
+
+The keyscheduling.cpp gives us the knowledge how the bits were permuted giving output in scheduledkey.cpp.
+
+The key was manually mapped and found to be 
+-1, -1, 1, -1, -1, 1, -1, -1, -1, 1, 0, -1, 1, -1, 1, 0, -1, -1, -1, 1, 1, -1, -1, 1, 1, -1, 0, -1, 0, 0, 0, 0, 1, 0, 1, -1, 0, 1, 1, 1, 1, 1, 0, 1, -1, 1, 0, -1, 1, 1, 0, 1, -1, 0, 0, 1
+Where -1  represents the bits not found.
+After this we apply brute force on the rest 20 bits of the key using key_perm.cpp and stored these possible keys in key_out.txt. Then we run it through desbruteforce.cpp and check whether a given input is encrypted in the same way or not. If it is, then that is the key.
+
+Given input : ffffffffffffffff {0,0,0,0,0,0,0,0}
+Given output :  {162,147,249,6,33,34,255,14}
+Key : 01101110010111100111101110000000101001111101010011011001
+
+Then we run 2 times decryptDES.cpp and decrypt the password using the key. Then as the numbers lied between 97 and 122 we thought that these could be ASCII codes and the answer could be the conversion into characters. The 48 represented 0 and thus was just to pad.
+
+
+Encrypted Password : rjhiplutmgqshofsihsgslshstphljlf
+
+Decrypted Password : tjwyetdpmc000000
+
+
+Answer was found to be ‘tjwyetdpmc’.
+

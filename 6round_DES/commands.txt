@@ -1,0 +1,1 @@
+go->jump->jump->back->take->back->back ->go->wave->go->back->read
